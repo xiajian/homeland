@@ -17,6 +17,21 @@ module Homeland
     scope :latest, -> { order('last_active_mark desc, id desc') }
     scope :features, -> { where('replies_count >= 20').latest }
 
+    class << self
+
+      def last_day_hot
+        ids = self.order(last_day_score: :desc).limit(100).pluck(:id)
+
+        self.where(id: ids).order(last_day_score: :desc)
+      end
+
+      def last_week_hot
+        ids = self.order(last_week_score: :desc).limit(100).pluck(:id)
+
+        self.where(id: ids).order(last_week_score: :desc)
+      end
+    end
+
     before_create :set_last_active_mark
     def set_last_active_mark
       self.last_active_mark = Time.now.to_i

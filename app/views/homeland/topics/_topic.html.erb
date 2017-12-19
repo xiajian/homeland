@@ -11,6 +11,12 @@
   <td class="replies">
     <%= topic.replies_count %>
   </td>
+
+  <% if action_name == 'hot'%>
+    <td class="replies">
+      <%= params[:type] == 'day' ? topic.last_day_score : topic.last_week_score %>
+    </td>
+  <% end%>
   <td class="activity">
     <%= timeago topic.activity_at %>
   </td>

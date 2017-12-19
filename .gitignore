@@ -20,3 +20,4 @@ public/t/**/*
 .redcar
 Gemfile.lock
 .DS_Store
+.idea/

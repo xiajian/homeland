@@ -18,4 +18,10 @@ $ rails db:migrate RAILS_ENV=test
 $ rake
 ```
 
+# 在测试程序中开发
+
+如果在，engine 中，添加了新的模型，可以通过执行 `rails g homeland:install` 来实现安装。
+
+
+
 

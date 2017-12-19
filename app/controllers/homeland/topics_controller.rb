@@ -5,6 +5,8 @@ module Homeland
       authorize_resource! topic
     end
 
+    before_action :add_page_view, only: [:show]
+
     def index
       @topics = Topic.latest.includes(:user).page(params[:page])
 
@@ -15,6 +17,20 @@ module Homeland
       @node = Node.find(params[:id])
       @topics = @node.topics.latest.includes(:user).page(params[:page])
 
+      render action: "index"
+    end
+
+    # 热门话题
+    def hot
+      params[:type] ||= 'day'
+
+      if params[:type] == 'day'
+        @topics = Topic.last_day_hot.page(params[:page])
+      else
+        @topics = Topic.last_week_hot.page(params[:page])
+      end
+
+      set_seo_meta(t("homeland.nav.hot"))
       render action: "index"
     end
 
@@ -107,6 +123,10 @@ module Homeland
 
     def reply_params
       params.require(:reply).permit(:body, :reply_to_id)
+    end
+
+    def add_page_view
+      Homeland::PageView.create!(topic_id: params[:id])
     end
   end
 end

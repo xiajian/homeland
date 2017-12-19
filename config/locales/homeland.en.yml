@@ -9,6 +9,7 @@ en:
         body: "Content"
         node: "Channel"
         replies_count: "Replies"
+        score: "Score"
         user: "Author"
         activity: "Activity"
       homeland/reply:
@@ -16,12 +17,15 @@ en:
   homeland:
     nav:
       home: 'Homeland'
+      hot: 'Hot'
       latest: 'Latest'
       features: 'Features'
       recent: 'Recent'
       node: "Channel"
       new: "New Topic"
     topics:
+      last_day_hot: 'Most hot in 24 hours'
+      last_week_hot: 'Most hot in 1 week'
       empty: 'Ther have no subject created.'
       type_reply: 'Write your reply here...'
       reply_to: "Reply To"

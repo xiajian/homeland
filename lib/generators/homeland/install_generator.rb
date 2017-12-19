@@ -15,9 +15,10 @@ module Homeland
         end
       end
 
-      def add_routes
-        route 'mount Homeland::Engine, at: "/homeland"'
-      end
+      # 由于仅仅在测试程序中使用，将安装路由的这一段去掉
+      # def add_routes
+      #   route 'mount Homeland::Engine, at: "/homeland"'
+      # end
 
       def add_migrations
         exec("rake homeland:install:migrations")

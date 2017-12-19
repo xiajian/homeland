@@ -8,9 +8,12 @@
         <th class="node"><%= t('activerecord.attributes.homeland/topic.node')%></th>
         <th class="author"><%= t('activerecord.attributes.homeland/topic.user')%></th>
         <th class="replies"><%= t('activerecord.attributes.homeland/topic.replies_count')%></th>
+        <% if action_name == 'hot' %>
+          <th class="replies"><%= t('activerecord.attributes.homeland/topic.score')%></th>
+        <% end %>
         <th class="activity"><%= t('activerecord.attributes.homeland/topic.activity')%></th>
       </tr>
-    </thad>
+    </thead>
     <tbody>
       <% if @topics.blank? %>
         <tr>

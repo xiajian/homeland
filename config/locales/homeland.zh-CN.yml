@@ -9,6 +9,7 @@ zh-CN:
         body: "正文"
         node: "频道"
         replies_count: "回帖量"
+        score: "得分"
         user: "作者"
         activity: "更新"
       homeland/reply:
@@ -17,6 +18,7 @@ zh-CN:
     nav:
       home: 'Homeland'
       latest: '话题'
+      hot: '最热'
       features: '精华帖'
       recent: '最新发布'
       node: "频道"
@@ -25,6 +27,8 @@ zh-CN:
       empty: '没有查到任何话题'
       type_reply: '在这里输入你要参与回复的内容...'
       reply_to: "回复"
+      last_day_hot: '24 小时热门话题'
+      last_week_hot: '一周热门话题'
     submiting: '提交中，请稍后...'
     submit: '提交'
     cancel: '取消'

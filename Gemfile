@@ -14,7 +14,11 @@ gem 'jquery-rails'
 gem 'mysql2'
 gem 'puma'
 
+gem 'whenever', :require => false
+gem 'rufus-scheduler'
+
 group :development, :test do
+  gem 'faker'
   gem 'minitest'
   gem 'factory_girl'
   gem 'simplecov'

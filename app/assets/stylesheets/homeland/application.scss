@@ -145,3 +145,20 @@
     }
   }
 }
+
+.filter {
+  li {
+    display: inline-block;
+    margin-bottom: 10px;
+    a {
+      margin-right: 10px;
+      text-decoration: none;
+      padding: 5px;
+    }
+
+    &.active a {
+        background: #e45735;
+        color: #FFF;
+    }
+  }
+}

@@ -6,6 +6,7 @@ Homeland::Engine.routes.draw do
       post :reply
     end
     collection do
+      get :hot
       get :recent
       get :features
     end

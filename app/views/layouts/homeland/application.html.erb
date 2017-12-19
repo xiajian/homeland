@@ -15,6 +15,9 @@
         <li class="nav-item<%= ' active' if controller_name == 'topics' and action_name == 'index' %>">
           <a class="nav-link" href="<%= homeland.root_path %>"><%= t('homeland.nav.latest') %></a>
         </li>
+        <li class="nav-item<%= ' active' if controller_name == 'topics' and action_name == 'hot' %>">
+          <a class="nav-link" href="<%= homeland.hot_topics_path %>"><%= t('homeland.nav.hot') %></a>
+        </li>
         <li class="nav-item<%= ' active' if controller_name == 'topics' and action_name == 'features' %>">
           <a class="nav-link" href="<%= homeland.features_topics_path %>"><%= t('homeland.nav.features') %></a>
         </li>
@@ -34,8 +37,19 @@
   </nav>
 
   <div class="main-layout">
+
     <div class="container">
       <%= notice_message %>
+      <% if controller_name == 'topics' and action_name == 'hot' %>
+        <ul class="filter nav nav-pills">
+          <li class="<%= 'active' if params[:type] == 'day' %>">
+            <a href="<%= homeland.hot_topics_path(type: 'day') %>" data-turbolinks-action="replace"><%= t('homeland.topics.last_day_hot')%></a>
+          </li>
+          <li class="<%= 'active' if params[:type] == 'week' %>">
+            <a href="<%= homeland.hot_topics_path(type: 'week') %>" ><%= t('homeland.topics.last_week_hot')%></a>
+          </li>
+        </ul>
+      <% end %>
 
       <%= yield %>
     </div>
