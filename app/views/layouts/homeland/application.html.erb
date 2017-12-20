@@ -41,7 +41,7 @@
     <div class="container">
       <%= notice_message %>
       <% if controller_name == 'topics' and action_name == 'hot' %>
-        <ul class="filter nav nav-pills">
+        <ul id="filter" class="nav nav-pills">
           <li class="<%= 'active' if params[:type] == 'day' %>">
             <a href="<%= homeland.hot_topics_path(type: 'day') %>" data-turbolinks-action="replace"><%= t('homeland.topics.last_day_hot')%></a>
           </li>

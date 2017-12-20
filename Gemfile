@@ -16,6 +16,7 @@ gem 'puma'
 
 gem 'whenever', :require => false
 gem 'rufus-scheduler'
+gem 'activerecord-import'
 
 group :development, :test do
   gem 'faker'

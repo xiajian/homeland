@@ -30,6 +30,14 @@ module Homeland
 
         self.where(id: ids).order(last_week_score: :desc)
       end
+
+      def get_candidate_hot_ids
+        most_reply_topic_ids = Homeland::Topic.find_by_sql('select a.id, (select count(*) from `homeland_replies` b where a.id = b.topic_id) reply_cnt from  `homeland_topics` a ORDER BY reply_cnt desc limit 3000').pluck(:id)
+
+        most_pv_topic_ids = Homeland::Topic.find_by_sql('select a.id, (select count(*) from `homeland_page_views` b where a.id = b.topic_id) pv_cnt from  `homeland_topics` a ORDER BY pv_cnt desc limit 1000').pluck(:id)
+
+        most_pv_topic_ids + most_reply_topic_ids
+      end
     end
 
     before_create :set_last_active_mark

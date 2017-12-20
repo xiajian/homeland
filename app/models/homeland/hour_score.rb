@@ -68,6 +68,7 @@ module Homeland
 
         no_exist_seqs = hour_seqs - exist_seqs
 
+        hour_scores = []
         no_exist_seqs.each do |seq|
           tmp_time = get_time_by_seq(seq)
           tmp_v = Homeland::PageView.get_count_by_time_and_topic tmp_time, topic_id
@@ -76,8 +77,10 @@ module Homeland
           score_base = tmp_v + 3 * tmp_p
           day_seq = Homeland::DayScore.get_day_seq(tmp_time)
 
-          self.create!(topic_id: topic_id, hour_seq: seq, score_base: score_base, day_seq: day_seq)
+          hour_scores << self.new(topic_id: topic_id, hour_seq: seq, score_base: score_base, day_seq: day_seq)
         end
+
+        self.import hour_scores
 
         self.where(hour_seq: hour_seqs, topic_id: topic_id).each do |hour_score|
           total += (24 - (current_seq - hour_score.hour_seq)) * hour_score.score_base
@@ -87,14 +90,17 @@ module Homeland
       end
 
       # 备注: 800 条数据，第一次跟新 82.029876 s， 第二次更新:  6.101894 s，之后的更新记录都是增量的变化的。
+      # 800 条数据，增量更新花了 5.748294s
       def update_topic_last_day_score
         prof do
           time = Time.now
-
-          Homeland::Topic.find_each do |topic|
+          candidate_ids = Homeland::Topic.get_candidate_hot_ids
+          Homeland::Topic.where(id: candidate_ids).each do |topic|
             topic.last_day_score = get_score_by_time time, topic.id
             topic.save
           end
+
+          nil
         end
       end
     end

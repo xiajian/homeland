@@ -37,6 +37,7 @@ module Homeland
         exist_seqs = self.where(day_seq: day_seqs, topic_id: topic_id).pluck(:day_seq)
         no_exist_seqs = day_seqs - exist_seqs
 
+        day_scores = []
         no_exist_seqs.each do |seq|
           tmp_time = get_time_by_seq seq
           tmp_v = Homeland::PageView.get_count_by_day_and_topic tmp_time, topic_id
@@ -44,8 +45,10 @@ module Homeland
 
           score_base = tmp_v + 3 * tmp_p
 
-          self.create!(topic_id: topic_id, day_seq: seq, score_base: score_base)
+          day_scores << self.new(topic_id: topic_id, day_seq: seq, score_base: score_base)
         end
+
+        self.import day_scores
 
         self.where(day_seq: day_seqs, topic_id: topic_id).each do |day_score|
           total += (7 - (current_seq - day_score.day_seq)) * day_score.score_base
@@ -58,7 +61,8 @@ module Homeland
       def update_topic_last_week_score
         Homeland::HourScore.prof do
           time = Time.now
-          Homeland::Topic.find_each do |topic|
+          candidate_ids = Homeland::Topic.get_candidate_hot_ids
+          Homeland::Topic.where(id: candidate_ids).find_each do |topic|
             topic.last_week_score = get_score_by_time time, topic.id
             topic.save
           end

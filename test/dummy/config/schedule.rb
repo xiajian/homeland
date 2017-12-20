@@ -18,15 +18,7 @@
 # end
 
 # Learn more: http://github.com/javan/whenever
-
-require 'yaml'
-
 set :output, 'log/whenever_cron.log'
-
-
-every 1.minute do
-  command '/bin/date'
-end
 
 every 10.minutes do
   runner 'Homeland::HourScore.update_topic_last_day_score'
