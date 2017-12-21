@@ -14,7 +14,7 @@
 
   <% if action_name == 'hot'%>
     <td class="replies">
-      <%= params[:type] == 'day' ? topic.last_day_score : topic.last_week_score %>
+      <%=  get_hot_score params[:type], topic.id %>
     </td>
   <% end%>
   <td class="activity">

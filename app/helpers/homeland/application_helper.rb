@@ -55,5 +55,13 @@ module Homeland
 
       flash_messages.join("\n").html_safe
     end
+
+    def get_hot_score(type, topic_id)
+      if type == 'day'
+        $redis.zscore Homeland::HourScore::LAST_DAY_HOT_TOPIC_KEY, topic_id
+      else
+        $redis.zscore Homeland::DayScore::LAST_WEEK_HOT_TOPIC_KEY, topic_id
+      end
+    end
   end
 end

@@ -126,7 +126,7 @@ module Homeland
     end
 
     def add_page_view
-      Homeland::PageView.create!(topic_id: params[:id])
+      Homeland::PageView.update_page_view(params[:id])
     end
   end
 end

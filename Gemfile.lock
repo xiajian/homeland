@@ -108,6 +108,8 @@ GEM
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
       pkg-config (~> 1.1.7)
+    order_as_specified (1.3)
+      activerecord (>= 4.0.1)
     orm_adapter (0.5.0)
     pkg-config (1.1.7)
     puma (3.6.0)
@@ -139,6 +141,25 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rake (11.2.2)
     redcarpet (3.3.4)
+    redis (4.0.1)
+    redis-actionpack (5.0.2)
+      actionpack (>= 4.0, < 6)
+      redis-rack (>= 1, < 3)
+      redis-store (>= 1.1.0, < 2)
+    redis-activesupport (5.0.4)
+      activesupport (>= 3, < 6)
+      redis-store (>= 1.3, < 2)
+    redis-namespace (1.6.0)
+      redis (>= 3.0.4)
+    redis-rack (2.0.4)
+      rack (>= 1.5, < 3)
+      redis-store (>= 1.2, < 2)
+    redis-rails (5.0.2)
+      redis-actionpack (>= 5.0, < 6)
+      redis-activesupport (>= 5.0, < 6)
+      redis-store (>= 1.2, < 2)
+    redis-store (1.4.1)
+      redis (>= 2.2, < 5)
     responders (2.3.0)
       railties (>= 4.2.0, < 5.1)
     rufus-scheduler (3.4.2)
@@ -194,8 +215,11 @@ DEPENDENCIES
   jquery-rails
   minitest
   mysql2
+  order_as_specified
   puma
   rails (~> 5.0.0)
+  redis-namespace
+  redis-rails
   rufus-scheduler
   sass-rails
   simplecov

@@ -18,6 +18,10 @@ gem 'whenever', :require => false
 gem 'rufus-scheduler'
 gem 'activerecord-import'
 
+gem 'redis-rails'
+gem 'redis-namespace'
+gem 'order_as_specified'
+
 group :development, :test do
   gem 'faker'
   gem 'minitest'

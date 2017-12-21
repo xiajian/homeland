@@ -1,5 +1,8 @@
 module Homeland
   class DayScore < ApplicationRecord
+
+    LAST_WEEK_HOT_TOPIC_KEY = "last_week_hot_topic_key".freeze
+
     class << self
 
       def get_day_seq(time)
@@ -55,6 +58,61 @@ module Homeland
         end
 
         total
+      end
+
+      def get_score_with_cache(topic_id, time = Time.now)
+        current_seq = get_day_seq time
+        total = 0
+
+        tmp_base = if time.to_i % (3600 * 24) > 0
+                     v0 = Homeland::PageView.get_day_page_view_by_time_and_topic time, topic_id
+                     p0 = Homeland::Reply.get_day_reply_by_time_and_topic time, topic_id
+                     7 * (v0 + 3 * p0)
+                   else
+                     0
+                   end
+        total += tmp_base
+
+        ((current_seq - 6)..(current_seq - 1)).each do |seq|
+          key = "day_score_#{seq}"
+          count = (7 - (current_seq - seq))
+
+          if (flag = $redis.exists(key)) && $redis.hexists(key, topic_id)
+            total += count * $redis.hget(key, topic_id).to_i
+          else
+            tmp_time = get_time_by_seq seq
+            tmp_v = Homeland::PageView.get_day_page_view_by_time_and_topic tmp_time, topic_id
+            tmp_p = Homeland::Reply.get_day_reply_by_time_and_topic tmp_time, topic_id
+
+            score_base = tmp_v + 3 * tmp_p
+
+            total += count * score_base
+
+            $redis.hset key, topic_id, score_base
+            unless flag
+              $redis.expire key, 14.days.to_i
+            end
+          end
+
+        end
+
+        total
+      end
+
+      def update_last_week_hot_topic
+        $redis.del LAST_WEEK_HOT_TOPIC_KEY if $redis.exists(LAST_WEEK_HOT_TOPIC_KEY)
+
+        Homeland::HourScore.prof do
+          candidate_ids = Homeland::Topic.get_candidate_hot_ids
+          time = Time.now
+          Homeland::Topic.where(id: candidate_ids).each do |topic|
+            score = get_score_with_cache topic.id, time
+
+            $redis.zadd LAST_WEEK_HOT_TOPIC_KEY, score, topic.id
+          end
+        end
+
+        nil
       end
 
       # 备注： 8 百多条，第一次更新，使用了 24.471511 s， 第二次更新 4.413085 s, 之后的更新都是增量的，速度回快一些

@@ -1,5 +1,8 @@
 module Homeland
   class HourScore < ApplicationRecord
+
+    LAST_DAY_HOT_TOPIC_KEY = "last_day_hot_topic_key".freeze
+
     class << self
 
       def prof(&block)
@@ -16,8 +19,12 @@ module Homeland
         result
       end
 
+      def get_hour_source_key(time)
+        "hour_score_#{get_hour_seq(time)}"
+      end
+
       def get_page_view_count_and_reply_count(topic_id)
-        pv =  {}
+        pv = {}
         self.where(topic_id: topic_id).each do |hour_score|
           tmp_time = get_time_by_seq(hour_score.hour_seq)
           puts tmp_time
@@ -46,7 +53,7 @@ module Homeland
       # 4. 此时，将所有的 X-1，X -23 数据取出，求值，并于 tmp_v0 相加，并赋值给 total
       # 5. 最后，将total 的值写入到对应的 topic 的 last_day_score 字段中
       # Homeland::HourScore.get_score_by_time Time.now, 2
-      def get_score_by_time(time, topic_id)
+      def get_score_by_time(topic_id, time = Time.now)
         current_seq = get_hour_seq time
         total = 0
 
@@ -89,6 +96,49 @@ module Homeland
         total
       end
 
+
+      # 简单记录一下实现的要点，通过 Redis 的 key 的中来存放相关的值
+      def get_score_with_cache(topic_id, time = Time.now)
+        total = 0
+        current_seq = get_hour_seq time
+
+        # 做一个临界条件的判断
+        tmp_base = if time.to_i % 3600 > 0
+                     v0 = Homeland::PageView.get_hour_page_view_by_time_and_topic time, topic_id
+                     p0 = Homeland::Reply.get_hour_reply_by_time_and_topic time, topic_id
+                     24 * (v0 + 3 * p0)
+                   else
+                     0
+                   end
+
+        total += tmp_base
+
+        ((current_seq-23)..(current_seq - 1)).each do |seq|
+          key = "hour_score_#{seq}"
+          count = (24 - (current_seq - seq))
+
+          if (flag = $redis.exists(key)) && $redis.hexists(key, topic_id)
+            total += count * $redis.hget(key, topic_id).to_i
+          else
+            tmp_time = get_time_by_seq(seq)
+            tmp_v = Homeland::PageView.get_hour_page_view_by_time_and_topic tmp_time, topic_id
+            tmp_p = Homeland::Reply.get_hour_reply_by_time_and_topic tmp_time, topic_id
+
+            score_base = tmp_v + 3 * tmp_p
+
+            total += count * score_base
+
+            $redis.hset key, topic_id, score_base
+            # 初次设置键，需要设置过期时间
+            unless flag
+              $redis.expire key, 8.days.to_i
+            end
+          end
+        end
+
+        total
+      end
+
       # 备注: 800 条数据，第一次跟新 82.029876 s， 第二次更新:  6.101894 s，之后的更新记录都是增量的变化的。
       # 800 条数据，增量更新花了 5.748294s
       def update_topic_last_day_score
@@ -96,12 +146,29 @@ module Homeland
           time = Time.now
           candidate_ids = Homeland::Topic.get_candidate_hot_ids
           Homeland::Topic.where(id: candidate_ids).each do |topic|
-            topic.last_day_score = get_score_by_time time, topic.id
+            topic.last_day_score = get_score_by_time topic.id, time
             topic.save
           end
 
           nil
         end
+      end
+
+      #
+      def update_last_day_hot_topic
+        prof do
+          $redis.del LAST_DAY_HOT_TOPIC_KEY if $redis.exists(LAST_DAY_HOT_TOPIC_KEY)
+
+          candidate_ids = Homeland::Topic.get_candidate_hot_ids
+          time = Time.now
+          Homeland::Topic.where(id: candidate_ids).each do |topic|
+            score = get_score_with_cache topic.id, time
+
+            $redis.zadd LAST_DAY_HOT_TOPIC_KEY, score, topic.id
+          end
+        end
+
+        nil
       end
     end
   end
